@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta property="og:title" content="A Special Puzzle for Grace ❤️">
+    <meta property="og:description" content="I made a little something for you. Tap to play!">
+    <meta property="og:url" content="https://Clint9991.github.io/grace-s-puzzle/">
+    <meta property="og:image" content="https://Clint9991.github.io/grace-s-puzzle/image_22.png">
+
+    <title>A Special Puzzle for Grace ❤️</title>
+    
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #eee;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        h1 { margin-bottom: 10px; font-weight: 300; letter-spacing: 1px;}
+        p.instructions { margin-top: 0; color: #888; font-size: 14px; margin-bottom: 30px;}
+
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            aspect-ratio: 9 / 16;
+            background-color: #333;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        #peek-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('./image_22.png'); 
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #puzzle-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2px;
+            z-index: 2;
+            background-color: #1a1a1a; 
+            transition: opacity 0.3s ease;
+        }
+
+        .piece {
+            width: 100%;
+            height: 100%;
+            background-image: url('./image_22.png');
+            background-size: 300% 400%;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: transform 0.1s, border 0.1s;
+            box-sizing: border-box;
+        }
+
+        .piece.selected {
+            border: 3px solid #ff4757;
+            z-index: 10;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            background-color: rgba(255,255,255,0.3);
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Piece Us Together</h1>
+    <p class="instructions">Tap a piece to select, tap another to swap.</p>
+
+    <div id="game-wrapper">
+        <div id="peek-layer"></div>
+        <div id="puzzle-grid"></div>
+    </div>
+
+    <div class="controls">
+        <button id="peek-btn" ontouchstart="showPeek()" ontouchend="hidePeek()" onmousedown="showPeek()" onmouseup="hidePeek()">HOLD TO PEEK</button>
+    </div>
+
+    <script>
+        const grid = document.getElementById('puzzle-grid');
+        const peekLayer = document.getElementById('peek-layer');
+        let pieces = [];
+        let selectedPiece = null;
+        const rows = 4;
+        const cols = 3;
+
+        function initPuzzle() {
+            for (let i = 0; i < rows * cols; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add('piece');
+                
+                const row = Math.floor(i / cols);
+                const col = i % cols;
+                const posX = col * (100 / (cols - 1));
+                const posY = row * (100 / (rows - 1));
+                piece.style.backgroundPosition = `${posX}% ${posY}%`;
+                
+                piece.addEventListener('click', () => handleTap(piece));
+                
+                grid.appendChild(piece);
+                pieces.push(piece);
+            }
+            shufflePieces();
+        }
+
+        function handleTap(clickedPiece) {
+            if (!selectedPiece) {
+                selectedPiece = clickedPiece;
+                clickedPiece.classList.add('selected');
+            } else {
+                if (selectedPiece !== clickedPiece) {
+                    swapPieces(selectedPiece, clickedPiece);
+                }
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+            }
+        }
+
+        function swapPieces(piece1, piece2) {
+            const tempBg = piece1.style.backgroundPosition;
+            piece1.style.backgroundPosition = piece2.style.backgroundPosition;
+            piece2.style.backgroundPosition = tempBg;
+        }
+
+        function shufflePieces() {
+            for (let i = 0; i < 30; i++) {
+                const idx1 = Math.floor(Math.random() * pieces.length);
+                const idx2 = Math.floor(Math.random() * pieces.length);
+                swapPieces(pieces[idx1], pieces[idx2]);
+            }
+        }
+
+        function showPeek() {
+            peekLayer.style.opacity = '1';
+            grid.style.opacity = '0.2';
+        }
+        function hidePeek() {
+            peekLayer.style.opacity = '0';
+            grid.style.opacity = '1';
+        }
+
+        window.onload = initPuzzle;
+    </script>
+</body>
+</html>
